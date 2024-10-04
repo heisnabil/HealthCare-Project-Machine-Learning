@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MediAIKTC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+       
+        body {
+            background-image: url('static/backgroung.png'); /* Replace with your image URL */
+        background-size: cover; /* Ensures the image covers the entire area */
+        background-position: center; /* Centers the image */
+        background-repeat: no-repeat; /* Prevents the image from repeating */
+        font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #e0f7fa; /* Calming light blue background */
+            font-family: 'Arial', sans-serif;
+        }
+
+        .navbar {
+            background-color: #00796b; /* Dark green */
+        }
+
+        .navbar-brand, .nav-link {
+            color: #ffffff !important; /* White color for links */
+        }
+
+        .navbar-brand:hover, .nav-link:hover {
+            color: #cfd8dc !important; /* Lighter shade on hover */
+        }
+
+        .main-form {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: 60px auto;
+        }
+
+        .form-heading {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #00796b; /* Dark green for headings */
+        }
+
+        /* Logo size and shape */
+        .logo {
+            width: 50px; /* Adjust the width as needed */
+            height: 50px; /* Set height equal to width for a perfect circle */
+            border-radius: 50%; /* Makes the image round */
+            object-fit: cover; /* Ensures the image covers the area */
+        }
+        /* Modal adjustments for long list */
+        .modal-body {
+            max-height: 400px; /* Restrict height to avoid overflow */
+            overflow-y: scroll; /* Enable scrolling */
+        }
+
+        /* Styles for symptom chips */
+        .chip {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 15px;
+            background-color: #00796b;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .btn-submit, .toggle-button {
+            background-color: #00796b;
+            color: white;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit:hover, .toggle-button:hover {
+            background-color: #004d40; /* Darker shade on hover */
+        }
+
+        .result-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .toggle-button {
+            width: 140px;
+            font-size: 18px;
+            margin: 10px;
+        }
+
+        .modal-header {
+            background-color: #00796b; /* Dark green */
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="static/img.png" alt="Logo" class="logo"> <!-- Replace with your logo URL -->
+                MediAIKTC
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a> 
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main form -->
+    <div class="main-form">
+        <h1 class="form-heading">Patient Symptom Checker</h1>
+        <form action="/predict" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">Patient Name:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="gender" class="form-label">Gender:</label>
+                <select class="form-select" id="gender" name="gender" required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="age" class="form-label">Age:</label>
+                <input type="number" class="form-control" id="age" name="age" required>
+            </div>
+            <div class="mb-3">
+                <label for="symptoms" class="form-label">Symptoms:</label>
+                <input type="text" class="form-control" id="symptoms" name="symptoms" placeholder="e.g., headache, fever" required>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#symptomsModal">
+                    &#x2192; <!-- Arrow icon for popup -->
+                </button>
+            </div>
+            <button type="submit" class="btn btn-submit w-100">Submit</button>
+
+        </form>
+    </div>
+
+    <!-- Symptoms Modal -->
+    <div class="modal fade" id="symptomsModal" tabindex="-1" aria-labelledby="symptomsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="symptomsModalLabel">Select Symptoms</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <h6>Select the symptoms you are experiencing:</h6>
+                                <div id="symptom-list" class="d-flex flex-wrap">
+                                    <!-- Symptoms list will be dynamically populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveSymptomsBtn">Save Symptoms</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results section (with disease, medication, diet, etc. buttons) -->
+    <div class="result-container">
+        <button class="toggle-button btn" data-bs-toggle="modal" data-bs-target="#diseaseModal">Disease</button>
+        <button class="toggle-button btn" data-bs-toggle="modal" data-bs-target="#medicationsModal">Medications</button>
+        <button class="toggle-button btn" data-bs-toggle="modal" data-bs-target="#dietsModal">Discription</button>
+        <button class="toggle-button btn" data-bs-toggle="modal" data-bs-target="#workoutsModal">Diet</button>
+        <button class="toggle-button btn" data-bs-toggle="modal" data-bs-target="#precautionModal">Workout</button>
+    </div>
+
+    <!-- Predicted Disease Modal -->
+    <div class="modal fade" id="diseaseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Predicted Disease</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ predicted_disease }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medication Modal -->
+    <div class="modal fade" id="medicationsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Predicted Medications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        {% for medication in medications %}
+                            <li>{{ medication }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diet Modal -->
+    <div class="modal fade" id="dietsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Predicted Discription</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ dis_des }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workout Modal -->
+    <div class="modal fade" id="workoutsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Predicted Diet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        {% for workout_item in workout %}
+                            <li>{{ workout_item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Precaution Modal -->
+    <div class="modal fade" id="precautionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Predicted Workout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        {% for precaution in my_precautions %}
+                            <li>{{ precaution }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript to handle symptoms modal interactions
+        const symptomList = ['itching', 'skin_rash', 'nodal_skin_eruptions', 'continuous_sneezing', 'shivering', 
+    'chills', 'joint_pain', 'stomach_pain', 'acidity', 'ulcers_on_tongue', 'muscle_wasting', 
+    'vomiting', 'burning_micturition', 'spotting_urination', 'fatigue', 'weight_gain', 
+    'anxiety', 'cold_hands_and_feet', 'mood_swings', 'weight_loss', 'restlessness', 
+    'lethargy', 'patches_in_throat', 'irregular_sugar_level', 'cough', 'high_fever', 
+    'sunken_eyes', 'breathlessness', 'sweating', 'dehydration', 'indigestion', 'headache', 
+    'yellowish_skin', 'dark_urine', 'nausea', 'loss_of_appetite', 'pain_behind_the_eyes', 
+    'back_pain', 'constipation', 'abdominal_pain', 'diarrhoea', 'mild_fever', 'yellow_urine', 
+    'yellowing_of_eyes', 'acute_liver_failure', 'fluid_overload', 'swelling_of_stomach', 
+    'swelled_lymph_nodes', 'malaise', 'blurred_and_distorted_vision', 'phlegm', 
+    'throat_irritation', 'redness_of_eyes', 'sinus_pressure', 'runny_nose', 'congestion', 
+    'chest_pain', 'weakness_in_limbs', 'fast_heart_rate', 'pain_during_bowel_movements', 
+    'pain_in_anal_region', 'bloody_stool', 'irritation_in_anus', 'neck_pain', 'dizziness', 
+    'cramps', 'bruising', 'obesity', 'swollen_legs', 'swollen_blood_vessels', 
+    'puffy_face_and_eyes', 'enlarged_thyroid', 'brittle_nails', 'swollen_extremities', 
+    'excessive_hunger', 'drying_and_tingling_lips', 'slurred_speech', 'knee_pain', 
+    'hip_joint_pain', 'muscle_weakness', 'stiff_neck', 'swelling_joints', 
+    'movement_stiffness', 'spinning_movements', 'loss_of_balance', 'unsteadiness', 
+    'weakness_of_one_body_side', 'loss_of_smell', 'bladder_discomfort', 'foul_smell_of_urine', 
+    'continuous_feel_of_urine', 'passage_of_gases', 'internal_itching', 'toxic_look_(typhos)', 
+    'depression', 'irritability', 'muscle_pain', 'altered_sensorium', 'red_spots_over_body', 
+    'belly_pain', 'abnormal_menstruation', 'dischromic_patches', 'watering_from_eyes', 
+    'increased_appetite', 'polyuria', 'family_history', 'mucoid_sputum', 
+    'rusty_sputum', 'lack_of_concentration', 'visual_disturbances', 
+    'receiving_blood_transfusion', 'receiving_unsterile_injections', 'coma', 
+    'stomach_bleeding', 'distention_of_abdomen', 'history_of_alcohol_consumption', 
+    'fluid_overload.1', 'blood_in_sputum', 'prominent_veins_on_calf', 'palpitations', 
+    'painful_walking', 'pus_filled_pimples', 'blackheads', 'scurring', 'skin_peeling', 
+    'silver_like_dusting', 'small_dents_in_nails', 'inflammatory_nails', 'blister', 
+    'red_sore_around_nose', 'yellow_crust_ooze']; // Add all your symptoms here
+        const selectedSymptoms = [];
+
+        const symptomListContainer = document.getElementById('symptom-list');
+        const symptomsInput = document.getElementById('symptoms');
+        const saveSymptomsBtn = document.getElementById('saveSymptomsBtn');
+
+        symptomList.forEach(symptom => {
+            const chip = document.createElement('div');
+            chip.classList.add('chip');
+            chip.innerText = symptom;
+            chip.onclick = () => toggleSymptomSelection(symptom, chip);
+            symptomListContainer.appendChild(chip);
+        });
+
+        saveSymptomsBtn.onclick = () => {
+            symptomsInput.value = selectedSymptoms.join(', ');
+            new bootstrap.Modal(document.getElementById('symptomsModal')).hide();
+        };
+
+        function toggleSymptomSelection(symptom, chipElement) {
+            if (selectedSymptoms.includes(symptom)) {
+                const index = selectedSymptoms.indexOf(symptom);
+                selectedSymptoms.splice(index, 1);
+                chipElement.style.backgroundColor = '#00796b'; // Unselect color
+            } else {
+                selectedSymptoms.push(symptom);
+                chipElement.style.backgroundColor = '#004d40'; // Select color
+            }
+        }
+    </script>
+</body>
+</html>
