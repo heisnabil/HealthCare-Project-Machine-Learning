@@ -4,12 +4,12 @@ import pandas as pd
 import pickle
 
 
-# flask app
+
 app = Flask(__name__)
 
 
 
-# load databasedataset===================================
+
 sym_des = pd.read_csv("datasets/symtoms_df.csv")
 precautions = pd.read_csv("datasets/precautions_df.csv")
 workout = pd.read_csv("datasets/workout_df.csv")
@@ -18,13 +18,11 @@ medications = pd.read_csv('datasets/medications.csv')
 diets = pd.read_csv("datasets/diets.csv")
 
 
-# load model===========================================
+
 svc = pickle.load(open('models/svc.pkl','rb'))
 
 
-#============================================================
-# custome and helping functions
-#==========================helper funtions================
+
 def helper(dis):
     desc = description[description['Disease'] == dis]['Description']
     desc = " ".join([w for w in desc])
@@ -56,20 +54,19 @@ def get_predicted_value(patient_symptoms):
 
 
 
-# creating routes========================================
+
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# Define a route for the home page
+
 @app.route('/predict', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
         symptoms = request.form.get('symptoms')
-        # mysysms = request.form.get('mysysms')
-        # print(mysysms)
+        
         print(symptoms)
         if symptoms =="Symptoms":
             message = "Please either write symptoms or you have written misspelled symptoms"
@@ -95,7 +92,7 @@ def home():
 
 
 
-# about view funtion and path
+
 @app.route('/about')
 def about():
     return render_template("about.html")
